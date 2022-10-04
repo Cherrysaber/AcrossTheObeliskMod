@@ -15,9 +15,9 @@ namespace HeroDeckShow
             Harmony.CreateAndPatchAll(typeof(Plugin));
         }
 
-        [HarmonyPatch(typeof(DeckWindowUI), "SetCombatCard")]
+        [HarmonyPatch(typeof(DeckWindowUI), "SetCombatDeck")]
         [HarmonyPrefix]
-        public static void SetCombatDeck(DeckWindowUI __instance, int heroIndex, bool discard)
+        public static void SetCombatDeckPrefix(DeckWindowUI __instance, int heroIndex, bool discard)
         {
             Plugin.discard = discard;
         }
