@@ -6,6 +6,7 @@ namespace HeroDeckShow
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        private static bool discard = false;
         private void Awake()
         {
             // Plugin startup logic
@@ -16,7 +17,17 @@ namespace HeroDeckShow
 
         [HarmonyPatch(typeof(DeckWindowUI), "SetCombatCard")]
         [HarmonyPrefix]
+        public static void SetCombatDeck(DeckWindowUI __instance, int heroIndex, bool discard)
+        {
+            Plugin.discard = discard;
+        }
+
+        [HarmonyPatch(typeof(DeckWindowUI), "SetCombatCard")]
+        [HarmonyPrefix]
         public static bool SetCombatCardPrefix(DeckWindowUI __instance, Hero hero,ref string cardId, int position, int total){
+            // 正常显示弃牌堆
+            if (discard) return true;
+            
             var heroIndex = GetHeroIndex(hero);
             var heroDeck = MatchManager.Instance.GetHeroDeck(heroIndex);
 
