@@ -6,7 +6,8 @@ namespace HeroDeckShow
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
-        private static bool discard = false;
+        private static bool _discard;
+
         private void Awake()
         {
             // Plugin startup logic
@@ -17,17 +18,18 @@ namespace HeroDeckShow
 
         [HarmonyPatch(typeof(DeckWindowUI), "SetCombatDeck")]
         [HarmonyPrefix]
-        public static void SetCombatDeckPrefix(DeckWindowUI __instance, int heroIndex, bool discard)
+        public static void SetCombatDeckPrefix(int heroIndex, bool discard)
         {
-            Plugin.discard = discard;
+            _discard = discard;
         }
 
         [HarmonyPatch(typeof(DeckWindowUI), "SetCombatCard")]
         [HarmonyPrefix]
-        public static bool SetCombatCardPrefix(DeckWindowUI __instance, Hero hero,ref string cardId, int position, int total){
+        public static void SetCombatCardPrefix(Hero hero, ref string cardId, int position, int total)
+        {
             // 正常显示弃牌堆
-            if (discard) return true;
-            
+            if (_discard) return;
+
             var heroIndex = GetHeroIndex(hero);
             var heroDeck = MatchManager.Instance.GetHeroDeck(heroIndex);
 
@@ -37,23 +39,26 @@ namespace HeroDeckShow
             {
                 cardId = heroDeck[position];
             }
-            return true;
         }
 
 
-        public static int GetHeroIndex(Hero target){
+        private static int GetHeroIndex(Hero target)
+        {
             var hero = AtOManager.Instance.GetHero(0);
-            if (hero == target){
+            if (hero == target)
+            {
                 return 0;
             }
-            
+
             hero = AtOManager.Instance.GetHero(1);
-            if (hero == target){
+            if (hero == target)
+            {
                 return 1;
             }
 
             hero = AtOManager.Instance.GetHero(2);
-            if (hero == target){
+            if (hero == target)
+            {
                 return 2;
             }
 
